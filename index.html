@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get Website Screenshot</title>
+</head>
+<body>
+    <input id="url" pleaceholder="Enter Website to Screenshot">
+    <button onclick="ss(document.getElementById('url').value)">Submit</button>
+    <div style="margin-top: 2em;width: 70vw;border: 1px solid #8f8a8a;border-radius: 1em;overflow: hidden;" id="image"></div>
+    <script>
+        // const key = ""; //👈 you can uncomment and put your own api key here
+        const container = document.getElementById("image");
+        function ss(url) {
+            container.innerHTML = "Loading...";
+            fetch(`https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${encodeURIComponent(url)}${(typeof key != "undefined") ? "&key="+key : ""}`)
+                .then(response => response.json())
+                .then(data => {
+                    container.innerHTML = `
+                    <img width="100%" src="${data['lighthouseResult']['audits']['full-page-screenshot']['details']['screenshot']['data']}">
+                    `;
+                })
+        }
+    </script>
+</body>
+</html>
