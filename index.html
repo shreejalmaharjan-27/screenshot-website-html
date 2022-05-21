@@ -7,22 +7,76 @@
     <title>Get Website Screenshot</title>
 </head>
 <body>
-    <input id="url" pleaceholder="Enter Website to Screenshot">
-    <button onclick="ss(document.getElementById('url').value)">Submit</button>
-    <div style="margin-top: 2em;width: 70vw;border: 1px solid #8f8a8a;border-radius: 1em;overflow: hidden;" id="image"></div>
+    <div class="inputContainer">
+        <input id="url" type="url" class="urlInput" placeholder="Enter Website to Screenshot" required>
+        <button onclick="ss(document.getElementById('url').value)" class="btn">Submit</button>
+    </div>
+    <div style="width: 70vw;margin: 1em auto; padding: 0.5em" id="image"></div>
     <script>
         // const key = ""; //👈 you can uncomment and put your own api key here
         const container = document.getElementById("image");
         function ss(url) {
+            if(url == '') {
+                alert("You need to enter a URL");
+                return;
+            }
             container.innerHTML = "Loading...";
             fetch(`https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${encodeURIComponent(url)}${(typeof key != "undefined") ? "&key="+key : ""}`)
                 .then(response => response.json())
                 .then(data => {
+                    console.log(data);
+                    if(data['error'] && data['error']['code'] == 429) {
+                        container.innerHTML = `You got rate limited, you should set an API key. Get it for free from <a href="https://console.cloud.google.com/apis/credentials">https://console.cloud.google.com/apis/credentials</a> `;   
+                        return;
+                    }
                     container.innerHTML = `
-                    <img width="100%" src="${data['lighthouseResult']['audits']['full-page-screenshot']['details']['screenshot']['data']}">
+                    <h2>Screenshot</h2>
+                    <div class="wrapper">
+                        <img width="100%" src="${data['lighthouseResult']['audits']['final-screenshot']['details']['data']}">
+                    </div>
+                    <h2>Full Page Screenshot</h2>
+                    <div class="wrapper">
+                        <img width="100%" src="${data['lighthouseResult']['audits']['full-page-screenshot']['details']['screenshot']['data']}">
+                    </div>
                     `;
-                })
+                }).catch(error => {
+                    console.log(error);
+                });
         }
     </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,500&display=swap');
+        *,* {
+            margin: 0;
+            padding: 0;
+            font-family: 'Roboto Flex', sans-serif;
+        }
+        .wrapper {
+            overflow: hidden;
+            border: 1px solid #8b8a8a;
+            border-radius: 1em;
+            margin-bottom: 1em;
+        }
+        .inputContainer {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 3em;
+        }
+        .urlInput {
+            padding: 0.4em 1em;
+            border: 1px solid #8b8a8a;
+            border-radius: 0.5em;
+            font-size: 1.2em;
+            width: 13em;
+        }
+        .btn {
+            padding: 0.4em 1em;
+            margin-top: 1em;
+            border-radius: 0.5em;
+            border: none;
+            font-size: 1em;
+        }
+    </style>
 </body>
 </html>
